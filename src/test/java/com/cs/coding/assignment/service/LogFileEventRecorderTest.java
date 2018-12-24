@@ -41,8 +41,9 @@ public class LogFileEventRecorderTest {
         LogEvent logEvent5 = new LogEvent("1", EventState.FINISHED.name(), 2L,"APPLICATION_LOG", "localhost");
         LogEvent logEvent6 = new LogEvent("3", EventState.STARTED.name(), 2L,null, null);
 
-        try (InputStream jsonInputStream = logEventInputStreamFactory.createLogEventInputStream(com.sun.tools.javac.util.List.of(
-                logEvent1, logEvent2, logEvent3, logEvent4, logEvent5, logEvent6).toArray(new LogEvent[]{}))) {
+        LogEvent [] logEvents = { logEvent1, logEvent2, logEvent3, logEvent4, logEvent5, logEvent6 };
+
+        try (InputStream jsonInputStream = logEventInputStreamFactory.createLogEventInputStream(logEvents)) {
             logFileEventRecorder.recordLogFileEvents(jsonInputStream);
         }
         EventDetailsChecker eventDetailsChecker = new EventDetailsChecker();
