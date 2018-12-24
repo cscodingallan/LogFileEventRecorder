@@ -4,11 +4,12 @@
 * Tested only on Oracle JDK
 * Gradle 4.9
 
-`./gradlew run --args <path to json logfile>`
+1. Clone git repository to local file system
+2. cd into cloned repository root directory
+3. `./gradlew run --args <path to json logfile>` e.g (from repository root directory): `./gradlew run --args src/test/resources/SampleLog1.json`
 
-e.g (from project root directory):
-
-`./gradlew run --args src/test/resources/SampleLog1.json`
+NOTE: this has only been tested on MacOSX so it might not work out-of-the-box on other platforms like MS Windows so it 
+might not work out-of-the-box. 
 
 ## The Database
 
@@ -19,10 +20,24 @@ Edit `src/main/resources/application.properties` to change that or any other dat
 
 A new database will be created by the application overwriting if a previously existing database is in the same location.
 
+The created database can be inspected with some external tool e.g SquirrelDB, RazorSQL.
+
 ## Logging
 
 Logging configuration is defined in `src/main/resources/application.properties`. When set to DEBUG level the app will
 log all persisted event details. Logging is configured to log to stdout/stderr - i.e. default configuration.
+
+## Assumptions
+
+* The only permitted database columns are eventId, event duration, type, host, alert
+* Only 1 table is permitted in the database
+* There is no requirement to support a continuously updating file - i.e. any new events added to the file while it is being processed or after it has been processed will not be captured
+* There is enough ram available to hold all partial events in memory
+* The “type” property of application log events may be any string - i.e. there is no defined set of types
+* The input json log file is always valid and well formed (if it is not, the app will throw an exception, log it and fail to complete)
+* The event finish timestamp is guaranteed to be greater than the event start timestamp
+* The only logging output channel required to be configured is to stdout/stderr
+* Type and host values of log events with the same id have the same values
 
 
 ## Approach
@@ -75,6 +90,8 @@ Unit tests are in place that cover the business logic including from JSON InputS
 implementation
 * Improve the LogFileRecorderTest that it can autowire without having to use `@SpringBootApplication`
 * Testing with large input log files along with performance monitoring
+* Test on other platforms like MS Windows and Linux
+* Consider options for fault tolerance - i.e. for unexpected JSON log events
 
 
 
