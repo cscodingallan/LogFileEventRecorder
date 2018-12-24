@@ -34,7 +34,6 @@ Pre-requisites:
 
 * JDK v1.8 or more recent must be pre-installed 
 * Tested only on Oracle JDK
-* Gradle 4.9
 
 Steps:
 
