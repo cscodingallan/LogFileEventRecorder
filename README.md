@@ -1,15 +1,48 @@
+# LogFileEventRecorder
+
+[![Build Status](https://travis-ci.com/cscodingallan/LogFileEventRecorder.svg?branch=master)](https://travis-ci.com/cscodingallan/LogFileEventRecorder)
+
+## Requirements
+
+* Java 8
+* Use of any open-source library is allowed
+* Your program must use a gradle build system to resolve dependencies, build and test
+
+## Summary of task
+Our custom-build server logs different events to a file. Every event has 2 entries in a log - one entry when the event was started and another when the event was finished. The entries in a log file have no specific order (it can occur that a specific event is logged before the event starts)
+Every line in the file is a JSON object containing event data:
+* id - the unique event identifier
+* state - whether the event was started or finished (can have values "STARTED" or "FINISHED" timestamp - the timestamp of the event in milliseconds
+* Application Server logs also have the additional attributes: type - type of log
+host - hostname
+
+Sample JSON: 
+
+    {"id":"scsmbstgra", "state":"STARTED", "type":"APPLICATION_LOG",
+    "host":"12345", "timestamp":1491377495212}  
+    {"id":"scsmbstgrb", "state":"STARTED", "timestamp":1491377495213}
+    {"id":"scsmbstgrc", "state":"FINISHED", "timestamp":1491377495218}
+    {"id":"scsmbstgra", "state":"FINISHED", "type":"APPLICATION_LOG",
+    "host":"12345", "timestamp":1491377495217}
+    {"id":"scsmbstgrc", "state":"STARTED", "timestamp":1491377495210}
+    {"id":"scsmbstgrb", "state":"FINISHED", "timestamp":1491377495216}
+    ...
+    
 ## To Run
+
+Pre-requisites:
 
 * JDK v1.8 or more recent must be pre-installed 
 * Tested only on Oracle JDK
 * Gradle 4.9
 
+Steps:
+
 1. Clone git repository to local file system
 2. cd into cloned repository root directory
 3. `./gradlew run --args <path to json logfile>` e.g (from repository root directory): `./gradlew run --args src/test/resources/SampleLog1.json`
 
-NOTE: this has only been tested on MacOSX so it might not work out-of-the-box on other platforms like MS Windows so it 
-might not work out-of-the-box. 
+NOTE: this has only been tested on MacOSX so it might not work out-of-the-box on other platforms like MS Windows.
 
 ## The Database
 
@@ -35,15 +68,13 @@ log all persisted event details. Logging is configured to log to stdout/stderr -
 * There is enough ram available to hold all partial events in memory
 * The “type” property of application log events may be any string - i.e. there is no defined set of types
 * The input json log file is always valid and well formed (if it is not, the app will throw an exception, log it and fail to complete)
-* The event finish timestamp is guaranteed to be greater than the event start timestamp
 * The only logging output channel required to be configured is to stdout/stderr
 * Type and host values of log events with the same id have the same values
-
 
 ## Approach
 
 Uses Spring Boot because this was a simple and fast way to make an application with Spring for dependency injection along
-with built in logging and JPA support. The downsides of this approach are a) that testing end-to-end either seems to require
+with built-in logging and JPA support. The downsides of this approach are a) that testing end-to-end either seems to require
 an xml Spring configuration or that the `CommandLineRunner` is executed as part of the test i.e. in order to 
 get autowiring to work (there's probably some elegant way to resolve that) and b) slow startup time.
 
@@ -70,13 +101,13 @@ from temporary ram storage. Emit the built EventDetail
 A single thread reads the JSON file and emits observed EventDetail instances. Other threads are used to persist
 emitted EventDetails. An RxJava Schedulers.io pool provides the persistence threads. That pool is unlimited but
 that is not expected to be of concern because the generation of EventDetails should not be signficantly faster
-than persisting them i.e. to the extent that too many persistence threads would be generated (this has not been tested).
+than persisting them i.e. to the extent that too many persistence threads would be generated (this theory has not been tested).
 Regulating the number of threads available for persistence is however simple should the need arise.
 
 ### Error Handling
 
 It is assumed that the JSON input file is valid and well-formed. The app will throw and log execeptions if
-either of assumptions are incorrect.
+either of those assumptions are incorrect.
 
 ### Testing
 
@@ -92,6 +123,7 @@ implementation
 * Testing with large input log files along with performance monitoring
 * Test on other platforms like MS Windows and Linux
 * Consider options for fault tolerance - i.e. for unexpected JSON log events
+* Consider automating testing with generated input files
 
 
 
