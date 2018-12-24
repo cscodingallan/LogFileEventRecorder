@@ -32,8 +32,7 @@ Sample JSON:
 
 Pre-requisites:
 
-* JDK v1.8 or more recent must be pre-installed 
-* Tested only on Oracle JDK
+* JDK v1.8 or more recent must be pre-installed (tested only on Oracle JDK)
 
 Steps:
 
